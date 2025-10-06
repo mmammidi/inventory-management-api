@@ -7,11 +7,15 @@ WORKDIR /app
 # Install dependencies for native modules
 RUN apk add --no-cache python3 make g++
 
+# Ensure devDeps install and skip postinstall scripts during npm ci
+ENV NPM_CONFIG_PRODUCTION=false \
+    PRISMA_SKIP_POSTINSTALL_GENERATE=true
+
 # Copy package files
 COPY package*.json ./
 
-# Install all dependencies (including dev) for build
-RUN npm ci
+# Install all dependencies (including dev) for build, but skip postinstall scripts
+RUN npm ci --ignore-scripts
 
 # Copy source code
 COPY . .

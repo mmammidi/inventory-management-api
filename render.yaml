@@ -9,6 +9,8 @@ services:
     healthCheckPath: /api/v1/health
     autoDeploy: true
     envVars:
+      - key: PRISMA_SKIP_POSTINSTALL_GENERATE
+        value: "true"
       - key: NPM_CONFIG_PRODUCTION
         value: "false"
       - key: NODE_ENV
