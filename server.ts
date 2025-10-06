@@ -55,6 +55,26 @@ app.use(express.urlencoded({ extended: true, limit: appConfig.maxFileSize }));
 // Trust proxy (for rate limiting and IP detection)
 app.set('trust proxy', 1);
 
+// Root route
+app.get('/', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Inventory Management API is running',
+    timestamp: new Date().toISOString(),
+    version: process.env.API_VERSION || '1.0.0',
+    endpoints: {
+      health: '/api/v1/health',
+      api: '/api/v1',
+      docs: '/api-docs'
+    }
+  });
+});
+
+// Favicon route
+app.get('/favicon.ico', (req, res) => {
+  res.status(204).end();
+});
+
 // Swagger documentation routes
 app.use('/api-docs', swaggerRoutes);
 
