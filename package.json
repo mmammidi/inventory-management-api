@@ -4,8 +4,8 @@
   "description": "Inventory Management API built with TypeScript and Express",
   "main": "dist/server.js",
   "scripts": {
-    "build": "tsc",
-    "start": "node -r tsconfig-paths/register dist/server.js",
+    "build": "tsc && tsc-alias",
+    "start": "node dist/server.js",
     "dev": "ts-node-dev --respawn --transpile-only -r tsconfig-paths/register server.ts",
     "dev:watch": "nodemon --exec ts-node server.ts",
     "clean": "rimraf dist",
@@ -81,6 +81,7 @@
     "ts-jest": "^29.4.4",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
+    "tsc-alias": "^1.8.16",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.3.3"
   },
