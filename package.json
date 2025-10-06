@@ -56,6 +56,9 @@
     "swagger-ui-express": "^5.0.1",
     "winston": "^3.11.0"
   },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/compression": "^1.7.5",

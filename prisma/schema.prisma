@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,17 +8,15 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  username  String   @unique
+  id        String     @id @default(cuid())
+  email     String     @unique
+  username  String     @unique
   firstName String?
   lastName  String?
-  role      UserRole @default(USER)
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  // Relations
+  role      UserRole   @default(USER)
+  isActive  Boolean    @default(true)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
   movements Movement[]
 
   @@map("users")
@@ -34,9 +29,7 @@ model Category {
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  // Relations
-  items Item[]
+  items       Item[]
 
   @@map("categories")
 }
@@ -51,58 +44,48 @@ model Supplier {
   isActive    Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-
-  // Relations
-  items Item[]
+  items       Item[]
 
   @@map("suppliers")
 }
 
 model Item {
-  id          String   @id @default(cuid())
+  id          String     @id @default(cuid())
   name        String
   description String?
-  sku         String   @unique
-  barcode     String?  @unique
-  price       Decimal  @db.Decimal(10, 2)
-  cost        Decimal  @db.Decimal(10, 2)
-  quantity    Int      @default(0)
-  minQuantity Int      @default(0)
+  sku         String     @unique
+  barcode     String?    @unique
+  price       Decimal    @db.Decimal(10, 2)
+  cost        Decimal    @db.Decimal(10, 2)
+  quantity    Int        @default(0)
+  minQuantity Int        @default(0)
   maxQuantity Int?
-  unit        String   @default("pcs")
-  isActive    Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  // Foreign keys
-  categoryId String
-  supplierId String?
-
-  // Relations
-  category  Category   @relation(fields: [categoryId], references: [id])
-  supplier  Supplier?  @relation(fields: [supplierId], references: [id])
-  movements Movement[]
+  unit        String     @default("pcs")
+  isActive    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  categoryId  String
+  supplierId  String?
+  category    Category   @relation(fields: [categoryId], references: [id])
+  supplier    Supplier?  @relation(fields: [supplierId], references: [id])
+  movements   Movement[]
 
   @@map("items")
 }
 
 model Movement {
-  id          String        @id @default(cuid())
-  type        MovementType
-  quantity    Int
-  reason      String?
-  reference   String? // PO number, invoice number, etc.
-  notes       String?
-  createdAt   DateTime      @default(now())
-  updatedAt   DateTime      @updatedAt
-
-  // Foreign keys
-  itemId String
-  userId String
-
-  // Relations
-  item Item @relation(fields: [itemId], references: [id])
-  user User @relation(fields: [userId], references: [id])
+  id        String       @id @default(cuid())
+  type      MovementType
+  quantity  Int
+  reason    String?
+  reference String?
+  notes     String?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  itemId    String
+  userId    String
+  item      Item         @relation(fields: [itemId], references: [id])
+  user      User         @relation(fields: [userId], references: [id])
 
   @@map("movements")
 }
@@ -119,4 +102,3 @@ enum MovementType {
   ADJUSTMENT
   TRANSFER
 }
-
