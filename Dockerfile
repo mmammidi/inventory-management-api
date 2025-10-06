@@ -1,5 +1,5 @@
 # Use Node.js 18 Alpine as base image
-FROM node:18-alpine
+FROM node:18-alpine AS builder
 
 # Set working directory
 WORKDIR /app
@@ -10,8 +10,8 @@ RUN apk add --no-cache python3 make g++
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm ci --only=production
+# Install all dependencies (including dev) for build
+RUN npm ci
 
 # Copy source code
 COPY . .
@@ -21,6 +21,18 @@ RUN npx prisma generate
 
 # Build the application
 RUN npm run build
+
+# --- Production image ---
+FROM node:18-alpine AS runner
+WORKDIR /app
+RUN apk add --no-cache dumb-init
+
+# Copy only necessary files from builder
+COPY --from=builder /app/package*.json ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/logs ./logs
 
 # Create logs directory
 RUN mkdir -p logs
@@ -33,4 +45,5 @@ HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD node -e "require('http').get('http://localhost:3000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
 
 # Start the application
+ENTRYPOINT ["/usr/bin/dumb-init", "--"]
 CMD ["npm", "start"]
