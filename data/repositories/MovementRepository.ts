@@ -16,6 +16,15 @@ export class MovementRepository extends BaseRepository<Movement> {
             category: true,
             supplier: true
           }
+        },
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true,
+            username: true
+          }
         }
       }
     });
@@ -58,6 +67,15 @@ export class MovementRepository extends BaseRepository<Movement> {
             include: {
               category: true,
               supplier: true
+            }
+          },
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+              username: true
             }
           }
         },
@@ -127,6 +145,15 @@ export class MovementRepository extends BaseRepository<Movement> {
               category: true,
               supplier: true
             }
+          },
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+              username: true
+            }
           }
         },
         orderBy: this.buildOrderBy(sortBy, sortOrder),
@@ -174,6 +201,15 @@ export class MovementRepository extends BaseRepository<Movement> {
             include: {
               category: true,
               supplier: true
+            }
+          },
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+              username: true
             }
           }
         },
@@ -253,6 +289,15 @@ export class MovementRepository extends BaseRepository<Movement> {
             include: {
               category: true,
               supplier: true
+            }
+          },
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+              username: true
             }
           }
         },

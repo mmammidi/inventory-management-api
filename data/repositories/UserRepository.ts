@@ -28,16 +28,27 @@ export class UserRepository extends BaseRepository<User> {
     // Add search functionality
     if (search) {
       where.OR = [
-        { username: { contains: search, mode: 'insensitive' } },
-        { email: { contains: search, mode: 'insensitive' } },
         { firstName: { contains: search, mode: 'insensitive' } },
-        { lastName: { contains: search, mode: 'insensitive' } }
+        { lastName: { contains: search, mode: 'insensitive' } },
+        { email: { contains: search, mode: 'insensitive' } },
+        { username: { contains: search, mode: 'insensitive' } }
       ];
     }
 
     const [users, total] = await Promise.all([
       this.prisma.user.findMany({
         where,
+        select: {
+          id: true,
+          email: true,
+          username: true,
+          firstName: true,
+          lastName: true,
+          role: true,
+          isActive: true,
+          createdAt: true,
+          updatedAt: true
+        },
         orderBy: this.buildOrderBy(sortBy, sortOrder),
         ...this.buildPagination(page, limit)
       }),
@@ -52,14 +63,36 @@ export class UserRepository extends BaseRepository<User> {
 
   async create(data: CreateUserRequest): Promise<User> {
     return this.prisma.user.create({
-      data
+      data,
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true
+      }
     });
   }
 
   async update(id: string, data: UpdateUserRequest): Promise<User> {
     return this.prisma.user.update({
       where: { id },
-      data
+      data,
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true
+      }
     });
   }
 
@@ -69,28 +102,32 @@ export class UserRepository extends BaseRepository<User> {
     });
   }
 
-  async findByUsername(username: string): Promise<User | null> {
-    return this.prisma.user.findUnique({
-      where: { username }
-    });
-  }
-
   async findByEmail(email: string): Promise<User | null> {
     return this.prisma.user.findUnique({
       where: { email }
     });
   }
 
-  async updateLastLogin(id: string): Promise<User> {
-    return this.prisma.user.update({
-      where: { id },
-      data: { lastLogin: new Date() }
+  async findByUsername(username: string): Promise<User | null> {
+    return this.prisma.user.findUnique({
+      where: { username }
     });
   }
 
   async getActiveUsers(): Promise<User[]> {
     return this.prisma.user.findMany({
-      where: { status: 'ACTIVE' },
+      where: { isActive: true },
+      select: {
+        id: true,
+        email: true,
+        username: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true
+      },
       orderBy: { firstName: 'asc' }
     });
   }
@@ -103,29 +140,22 @@ export class UserRepository extends BaseRepository<User> {
     managerUsers: number;
     regularUsers: number;
   }> {
-    const [
-      totalUsers,
-      activeUsers,
-      inactiveUsers,
-      adminUsers,
-      managerUsers,
-      regularUsers
-    ] = await Promise.all([
+    const [total, active, inactive, admins, managers, regular] = await Promise.all([
       this.prisma.user.count(),
-      this.prisma.user.count({ where: { status: 'ACTIVE' } }),
-      this.prisma.user.count({ where: { status: 'INACTIVE' } }),
+      this.prisma.user.count({ where: { isActive: true } }),
+      this.prisma.user.count({ where: { isActive: false } }),
       this.prisma.user.count({ where: { role: 'ADMIN' } }),
       this.prisma.user.count({ where: { role: 'MANAGER' } }),
       this.prisma.user.count({ where: { role: 'USER' } })
     ]);
 
     return {
-      totalUsers,
-      activeUsers,
-      inactiveUsers,
-      adminUsers,
-      managerUsers,
-      regularUsers
+      totalUsers: total,
+      activeUsers: active,
+      inactiveUsers: inactive,
+      adminUsers: admins,
+      managerUsers: managers,
+      regularUsers: regular
     };
   }
 }

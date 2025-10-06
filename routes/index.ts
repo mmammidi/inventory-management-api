@@ -3,6 +3,7 @@ import { ItemController } from '@/presentation/controllers/ItemController';
 import { CategoryController } from '@/presentation/controllers/CategoryController';
 import { SupplierController } from '@/presentation/controllers/SupplierController';
 import { MovementController } from '@/presentation/controllers/MovementController';
+import { UserController } from '@/presentation/controllers/UserController';
 import { DashboardController } from '@/presentation/controllers/DashboardController';
 
 // Import middleware
@@ -16,6 +17,8 @@ import {
   validateUpdateSupplier,
   validateCreateMovement,
   validateAdjustInventory,
+  validateCreateUser,
+  validateUpdateUser,
   validateQueryParams
 } from '@/presentation/middleware/validation';
 import { asyncHandler } from '@/presentation/middleware/errorHandler';
@@ -25,6 +28,7 @@ const itemController = new ItemController();
 const categoryController = new CategoryController();
 const supplierController = new SupplierController();
 const movementController = new MovementController();
+const userController = new UserController();
 const dashboardController = new DashboardController();
 
 // Create router
@@ -2210,5 +2214,284 @@ router.post('/movements', validateCreateMovement, asyncHandler(movementControlle
  *               $ref: '#/components/schemas/Error'
  */
 router.post('/items/:itemId/adjust', validateAdjustInventory, asyncHandler(movementController.adjustInventory));
+
+// User routes
+/**
+ * @swagger
+ * /users:
+ *   get:
+ *     summary: Get all users
+ *     description: Retrieve a paginated list of all users
+ *     tags: [Users]
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           default: 1
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           minimum: 1
+ *           maximum: 100
+ *           default: 10
+ *         description: Number of users per page
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Search by name, email, or username
+ *       - in: query
+ *         name: sortBy
+ *         schema:
+ *           type: string
+ *           enum: [firstName, lastName, email, username, createdAt]
+ *           default: createdAt
+ *         description: Field to sort by
+ *       - in: query
+ *         name: sortOrder
+ *         schema:
+ *           type: string
+ *           enum: [asc, desc]
+ *           default: desc
+ *         description: Sort order
+ *     responses:
+ *       200:
+ *         description: Users retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     users:
+ *                       type: array
+ *                       items:
+ *                         $ref: '#/components/schemas/UserResponse'
+ *                     pagination:
+ *                       $ref: '#/components/schemas/PaginationInfo'
+ *       400:
+ *         $ref: '#/components/responses/BadRequest'
+ *       500:
+ *         $ref: '#/components/responses/InternalServerError'
+ */
+router.get('/users', validateQueryParams, asyncHandler(userController.getAllUsers));
+
+/**
+ * @swagger
+ * /users/active:
+ *   get:
+ *     summary: Get active users
+ *     description: Retrieve a list of all active users
+ *     tags: [Users]
+ *     responses:
+ *       200:
+ *         description: Active users retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/UserResponse'
+ *       400:
+ *         $ref: '#/components/responses/BadRequest'
+ *       500:
+ *         $ref: '#/components/responses/InternalServerError'
+ */
+router.get('/users/active', asyncHandler(userController.getActiveUsers));
+
+/**
+ * @swagger
+ * /users/stats:
+ *   get:
+ *     summary: Get user statistics
+ *     description: Retrieve user statistics including counts by role and status
+ *     tags: [Users]
+ *     responses:
+ *       200:
+ *         description: User statistics retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     totalUsers:
+ *                       type: integer
+ *                     activeUsers:
+ *                       type: integer
+ *                     inactiveUsers:
+ *                       type: integer
+ *                     adminUsers:
+ *                       type: integer
+ *                     managerUsers:
+ *                       type: integer
+ *                     regularUsers:
+ *                       type: integer
+ *       400:
+ *         $ref: '#/components/responses/BadRequest'
+ *       500:
+ *         $ref: '#/components/responses/InternalServerError'
+ */
+router.get('/users/stats', asyncHandler(userController.getUserStats));
+
+/**
+ * @swagger
+ * /users/{id}:
+ *   get:
+ *     summary: Get user by ID
+ *     description: Retrieve a specific user by their ID
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID
+ *     responses:
+ *       200:
+ *         description: User retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   $ref: '#/components/schemas/UserResponse'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *       500:
+ *         $ref: '#/components/responses/InternalServerError'
+ */
+router.get('/users/:id', asyncHandler(userController.getUserById));
+
+/**
+ * @swagger
+ * /users:
+ *   post:
+ *     summary: Create a new user
+ *     description: Create a new user account
+ *     tags: [Users]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CreateUserRequest'
+ *     responses:
+ *       201:
+ *         description: User created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   $ref: '#/components/schemas/UserResponse'
+ *                 message:
+ *                   type: string
+ *       400:
+ *         $ref: '#/components/responses/BadRequest'
+ *       500:
+ *         $ref: '#/components/responses/InternalServerError'
+ */
+router.post('/users', validateCreateUser, asyncHandler(userController.createUser));
+
+/**
+ * @swagger
+ * /users/{id}:
+ *   put:
+ *     summary: Update user
+ *     description: Update an existing user's information
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/UpdateUserRequest'
+ *     responses:
+ *       200:
+ *         description: User updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   $ref: '#/components/schemas/UserResponse'
+ *                 message:
+ *                   type: string
+ *       400:
+ *         $ref: '#/components/responses/BadRequest'
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *       500:
+ *         $ref: '#/components/responses/InternalServerError'
+ */
+router.put('/users/:id', validateUpdateUser, asyncHandler(userController.updateUser));
+
+/**
+ * @swagger
+ * /users/{id}:
+ *   delete:
+ *     summary: Delete user
+ *     description: Delete a user account
+ *     tags: [Users]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: User ID
+ *     responses:
+ *       200:
+ *         description: User deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *       404:
+ *         $ref: '#/components/responses/NotFound'
+ *       500:
+ *         $ref: '#/components/responses/InternalServerError'
+ */
+router.delete('/users/:id', asyncHandler(userController.deleteUser));
 
 export default router;

@@ -412,6 +412,154 @@ const options: swaggerJsdoc.Options = {
             },
           },
         },
+        UserResponse: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string',
+              example: 'clr1234567890',
+            },
+            username: {
+              type: 'string',
+              example: 'johndoe',
+            },
+            email: {
+              type: 'string',
+              format: 'email',
+              example: 'user@example.com',
+            },
+            firstName: {
+              type: 'string',
+              example: 'John',
+            },
+            lastName: {
+              type: 'string',
+              example: 'Doe',
+            },
+            role: {
+              type: 'string',
+              enum: ['ADMIN', 'MANAGER', 'USER', 'VIEWER'],
+              example: 'USER',
+            },
+            status: {
+              type: 'string',
+              enum: ['ACTIVE', 'INACTIVE', 'SUSPENDED'],
+              example: 'ACTIVE',
+            },
+            createdAt: {
+              type: 'string',
+              format: 'date-time',
+              example: '2024-01-01T00:00:00.000Z',
+            },
+            updatedAt: {
+              type: 'string',
+              format: 'date-time',
+              example: '2024-01-01T00:00:00.000Z',
+            },
+          },
+        },
+        CreateUserRequest: {
+          type: 'object',
+          required: ['username', 'email', 'firstName', 'lastName'],
+          properties: {
+            username: {
+              type: 'string',
+              minLength: 3,
+              maxLength: 50,
+              example: 'johndoe',
+            },
+            email: {
+              type: 'string',
+              format: 'email',
+              example: 'user@example.com',
+            },
+            firstName: {
+              type: 'string',
+              minLength: 1,
+              maxLength: 100,
+              example: 'John',
+            },
+            lastName: {
+              type: 'string',
+              minLength: 1,
+              maxLength: 100,
+              example: 'Doe',
+            },
+            role: {
+              type: 'string',
+              enum: ['ADMIN', 'MANAGER', 'USER', 'VIEWER'],
+              default: 'USER',
+              example: 'USER',
+            },
+          },
+        },
+        UpdateUserRequest: {
+          type: 'object',
+          properties: {
+            username: {
+              type: 'string',
+              minLength: 3,
+              maxLength: 50,
+              example: 'johndoe',
+            },
+            email: {
+              type: 'string',
+              format: 'email',
+              example: 'user@example.com',
+            },
+            firstName: {
+              type: 'string',
+              minLength: 1,
+              maxLength: 100,
+              example: 'John',
+            },
+            lastName: {
+              type: 'string',
+              minLength: 1,
+              maxLength: 100,
+              example: 'Doe',
+            },
+            role: {
+              type: 'string',
+              enum: ['ADMIN', 'MANAGER', 'USER', 'VIEWER'],
+              example: 'USER',
+            },
+            status: {
+              type: 'string',
+              enum: ['ACTIVE', 'INACTIVE', 'SUSPENDED'],
+              example: 'ACTIVE',
+            },
+          },
+        },
+        PaginationInfo: {
+          type: 'object',
+          properties: {
+            page: {
+              type: 'integer',
+              example: 1,
+            },
+            limit: {
+              type: 'integer',
+              example: 10,
+            },
+            total: {
+              type: 'integer',
+              example: 100,
+            },
+            totalPages: {
+              type: 'integer',
+              example: 10,
+            },
+            hasNext: {
+              type: 'boolean',
+              example: true,
+            },
+            hasPrev: {
+              type: 'boolean',
+              example: false,
+            },
+          },
+        },
       },
     },
     security: [],

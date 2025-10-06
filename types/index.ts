@@ -189,7 +189,13 @@ export interface MovementResponse {
   quantity: number;
   reason?: string;
   reference?: string;
-  userId?: string;
+  user: {
+    id: string;
+    firstName?: string;
+    lastName?: string;
+    email: string;
+    username: string;
+  };
   notes?: string;
   createdAt: Date;
 }
@@ -198,7 +204,6 @@ export interface MovementResponse {
 export interface CreateUserRequest {
   username: string;
   email: string;
-  password: string;
   firstName: string;
   lastName: string;
   role?: 'ADMIN' | 'MANAGER' | 'USER' | 'VIEWER';

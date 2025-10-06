@@ -65,8 +65,7 @@ export class ItemRepository extends BaseRepository<Item> {
   async create(data: CreateItemRequest): Promise<Item> {
     return this.prisma.item.create({
       data: {
-        ...data,
-        dimensions: data.dimensions ? JSON.stringify(data.dimensions) : null
+        ...data
       },
       include: {
         category: true,
@@ -77,10 +76,6 @@ export class ItemRepository extends BaseRepository<Item> {
 
   async update(id: string, data: UpdateItemRequest): Promise<Item> {
     const updateData: any = { ...data };
-    
-    if (data.dimensions) {
-      updateData.dimensions = JSON.stringify(data.dimensions);
-    }
 
     return this.prisma.item.update({
       where: { id },

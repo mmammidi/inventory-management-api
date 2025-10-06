@@ -11,6 +11,7 @@ import {
   compressionMiddleware, 
   requestLogger,
   generalLimiter,
+  devLimiter,
   authLimiter
 } from '@/presentation/middleware/security';
 import { 
@@ -40,8 +41,8 @@ app.use(securityHeaders);
 app.use(corsMiddleware);
 app.use(compressionMiddleware);
 
-// Rate limiting
-app.use(generalLimiter);
+// Rate limiting - use development-friendly limiter in dev mode
+app.use(process.env.NODE_ENV === 'development' ? devLimiter : generalLimiter);
 
 // Request logging
 app.use(requestLogger);
@@ -128,7 +129,9 @@ const startServer = async (): Promise<void> => {
   }
 };
 
-// Start the server
-startServer();
+// Start the server unless running under test
+if (process.env.NODE_ENV !== 'test') {
+  startServer();
+}
 
 export default app;

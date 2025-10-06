@@ -56,6 +56,15 @@ export class MovementService {
                 category: true,
                 supplier: true
               }
+            },
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                email: true,
+                username: true
+              }
             }
           }
         });
@@ -286,7 +295,13 @@ export class MovementService {
       quantity: movement.quantity,
       reason: movement.reason,
       reference: movement.reference,
-      userId: movement.userId,
+      user: {
+        id: movement.user.id,
+        firstName: movement.user.firstName,
+        lastName: movement.user.lastName,
+        email: movement.user.email,
+        username: movement.user.username
+      },
       notes: movement.notes,
       createdAt: movement.createdAt
     };

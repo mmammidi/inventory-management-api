@@ -27,7 +27,7 @@ export const createRateLimit = (windowMs: number, max: number, message?: string)
 // General rate limiter
 export const generalLimiter = createRateLimit(
   15 * 60 * 1000, // 15 minutes
-  100, // limit each IP to 100 requests per windowMs
+  process.env.NODE_ENV === 'development' ? 10000 : 100, // More lenient in development
   'Too many requests from this IP, please try again later'
 );
 
@@ -41,8 +41,15 @@ export const authLimiter = createRateLimit(
 // API rate limiter
 export const apiLimiter = createRateLimit(
   15 * 60 * 1000, // 15 minutes
-  1000, // limit each IP to 1000 requests per windowMs
+  process.env.NODE_ENV === 'development' ? 10000 : 1000, // More lenient in development
   'API rate limit exceeded, please try again later'
+);
+
+// Development rate limiter (very lenient)
+export const devLimiter = createRateLimit(
+  15 * 60 * 1000, // 15 minutes
+  50000, // Very high limit for development
+  'Development rate limit exceeded'
 );
 
 // Security headers middleware
@@ -61,11 +68,15 @@ export const securityHeaders = helmet({
 // CORS configuration
 export const corsOptions = {
   origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-    const allowedOrigins = process.env.CORS_ORIGIN?.split(',') || ['http://localhost:3000'];
-    
-    // Allow requests with no origin (mobile apps, Postman, etc.)
+    const allowedOrigins = process.env.CORS_ORIGIN?.split(',').map(o => o.trim()).filter(Boolean) || ['http://localhost:3000'];
+
+    // Allow requests with no origin (mobile apps, Postman, server-to-server, Swagger in same origin)
     if (!origin) return callback(null, true);
-    
+
+    // Always allow localhost/127.0.0.1 on any port in development
+    const isLocalhost = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(origin);
+    if (isLocalhost) return callback(null, true);
+
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {

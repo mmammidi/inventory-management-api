@@ -110,7 +110,7 @@ export class SupplierRepository extends BaseRepository<Supplier> {
   }
 
   async findByEmail(email: string): Promise<Supplier | null> {
-    return this.prisma.supplier.findUnique({
+    return this.prisma.supplier.findFirst({
       where: { email },
       include: {
         _count: {
