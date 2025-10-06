@@ -64,6 +64,21 @@ const router = Router();
  *                   type: string
  *                   example: "1.0.0"
  */
+// Root route
+router.get('/', (req, res) => {
+  res.json({
+    success: true,
+    message: 'Inventory Management API is running',
+    timestamp: new Date().toISOString(),
+    version: process.env.API_VERSION || '1.0.0',
+    endpoints: {
+      health: '/health',
+      api: '/api/v1',
+      docs: '/api-docs'
+    }
+  });
+});
+
 router.get('/health', (req, res) => {
   res.json({
     success: true,

@@ -7,7 +7,7 @@ dotenv.config();
 export const appConfig = {
   // Server configuration
   port: parseInt(process.env.PORT || '3000'),
-  host: process.env.HOST || 'localhost',
+  host: process.env.HOST || (process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost'),
   nodeEnv: process.env.NODE_ENV || 'development',
   
   // API configuration
