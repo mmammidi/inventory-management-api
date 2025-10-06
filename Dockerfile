@@ -1,11 +1,16 @@
-# Use Node.js 18 Alpine as base image
-FROM node:18-alpine AS builder
+# Use Node.js 18 Debian as base image for better Prisma compatibility
+FROM node:18-slim AS builder
 
 # Set working directory
 WORKDIR /app
 
-# Install dependencies for native modules
-RUN apk add --no-cache python3 make g++
+# Install dependencies for native modules and OpenSSL
+RUN apt-get update && apt-get install -y \
+    python3 \
+    make \
+    g++ \
+    openssl \
+    && rm -rf /var/lib/apt/lists/*
 
 # Ensure devDeps install and skip postinstall scripts during npm ci
 ENV NPM_CONFIG_PRODUCTION=false \
@@ -27,9 +32,14 @@ RUN npx prisma generate
 RUN npm run build
 
 # --- Production image ---
-FROM node:18-alpine AS runner
+FROM node:18-slim AS runner
 WORKDIR /app
-RUN apk add --no-cache dumb-init
+
+# Install OpenSSL and dumb-init for production
+RUN apt-get update && apt-get install -y \
+    openssl \
+    dumb-init \
+    && rm -rf /var/lib/apt/lists/*
 
 # Copy only necessary files from builder
 COPY --from=builder /app/package*.json ./
@@ -51,6 +61,6 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
   CMD node -e "require('http').get('http://localhost:3000/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
 
-# Start the application
+# Start the application with database migration
 ENTRYPOINT ["/usr/bin/dumb-init", "--"]
-CMD ["npm", "start"]
+CMD ["sh", "-c", "npx prisma migrate deploy && npm start"]
