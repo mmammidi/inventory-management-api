@@ -62,6 +62,8 @@ app.get('/', (req, res) => {
     message: 'Inventory Management API is running',
     timestamp: new Date().toISOString(),
     version: process.env.API_VERSION || '1.0.0',
+    environment: process.env.NODE_ENV || 'development',
+    authentication: appConfig.authEnabled ? 'enabled' : 'disabled',
     endpoints: {
       health: '/api/v1/health',
       api: '/api/v1',
@@ -111,6 +113,7 @@ const startServer = async (): Promise<void> => {
 🌍 Environment: ${appConfig.nodeEnv}
 📊 API Version: ${appConfig.apiVersion}
 🔗 API Base URL: http://${appConfig.host}:${appConfig.port}${appConfig.apiPrefix}
+🔐 Authentication: ${appConfig.authEnabled ? 'ENABLED' : 'DISABLED'}
 ⏰ Started at: ${new Date().toISOString()}
       `);
     });

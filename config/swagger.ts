@@ -23,7 +23,9 @@ const options: swaggerJsdoc.Options = {
         description: 'Development server',
       },
       {
-        url: 'https://api.inventory-management.com/api/v1',
+        url: process.env.NODE_ENV === 'production' 
+          ? `${process.env.RENDER_EXTERNAL_URL || 'https://inventory-management-api.onrender.com'}${appConfig.apiPrefix}`
+          : 'https://api.inventory-management.com/api/v1',
         description: 'Production server',
       },
     ],
@@ -562,12 +564,19 @@ const options: swaggerJsdoc.Options = {
         },
       },
     },
-    security: [],
+    security: process.env.NODE_ENV === 'production' && process.env.DISABLE_AUTH === 'true' ? [] : [
+      {
+        bearerAuth: []
+      }
+    ],
   },
   apis: [
     './routes/*.ts',
+    './routes/*.js',
     './presentation/controllers/*.ts',
+    './presentation/controllers/*.js',
     './server.ts',
+    './server.js',
   ],
 };
 

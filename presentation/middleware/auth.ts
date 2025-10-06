@@ -18,6 +18,20 @@ declare global {
 
 // JWT authentication middleware
 export const authenticateToken = (req: Request, res: Response, next: NextFunction): void => {
+  // Check if authentication is disabled in production
+  const authDisabled = process.env.NODE_ENV === 'production' && process.env.DISABLE_AUTH === 'true';
+  
+  if (authDisabled) {
+    // Create a default user for production when auth is disabled
+    req.user = {
+      id: 'system',
+      username: 'system',
+      email: 'system@inventory-api.com',
+      role: 'ADMIN'
+    };
+    return next();
+  }
+
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
 
@@ -53,6 +67,14 @@ export const authenticateToken = (req: Request, res: Response, next: NextFunctio
 // Role-based authorization middleware
 export const authorize = (...roles: string[]) => {
   return (req: Request, res: Response, next: NextFunction): void => {
+    // Check if authentication is disabled in production
+    const authDisabled = process.env.NODE_ENV === 'production' && process.env.DISABLE_AUTH === 'true';
+    
+    if (authDisabled) {
+      // Allow all requests when auth is disabled
+      return next();
+    }
+
     if (!req.user) {
       throw new CustomError('Authentication required', 401);
     }

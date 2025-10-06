@@ -19,6 +19,9 @@ export const appConfig = {
   
   // JWT configuration
   jwtSecret: process.env.JWT_SECRET || 'inventory-management-api-jwt-secret-key-2024-production-ready',
+  
+  // Authentication configuration
+  authEnabled: !(process.env.NODE_ENV === 'production' && process.env.DISABLE_AUTH === 'true'),
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '24h',
   jwtRefreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
   
