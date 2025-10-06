@@ -3,6 +3,7 @@ import rateLimit from 'express-rate-limit';
 import helmet from 'helmet';
 import cors from 'cors';
 import compression from 'compression';
+import { appConfig } from '@/config/app';
 
 // Rate limiting middleware
 export const createRateLimit = (windowMs: number, max: number, message?: string) => {
@@ -68,7 +69,7 @@ export const securityHeaders = helmet({
 // CORS configuration
 export const corsOptions = {
   origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
-    const allowedOrigins = process.env.CORS_ORIGIN?.split(',').map(o => o.trim()).filter(Boolean) || ['http://localhost:3000'];
+    const allowedOrigins = appConfig.corsOrigin;
 
     // Allow requests with no origin (mobile apps, Postman, server-to-server, Swagger in same origin)
     if (!origin) return callback(null, true);
@@ -80,6 +81,7 @@ export const corsOptions = {
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
+      console.log(`CORS: Origin ${origin} not allowed. Allowed origins:`, allowedOrigins);
       callback(new Error('Not allowed by CORS'), false);
     }
   },

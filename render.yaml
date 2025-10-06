@@ -16,6 +16,6 @@ services:
         sync: false
       - key: SHADOW_DATABASE_URL
         sync: false
-      - key: CORS_ORIGINS
-        value: http://localhost:5173
+      - key: CORS_ORIGIN
+        value: "https://inventory-application-d4u1.onrender.com,http://localhost:5173,http://localhost:3000"
 

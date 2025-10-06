@@ -15,7 +15,11 @@ export const appConfig = {
   apiVersion: process.env.API_VERSION || '1.0.0',
   
   // CORS configuration
-  corsOrigin: process.env.CORS_ORIGIN?.split(',') || ['http://localhost:3000'],
+  corsOrigin: process.env.CORS_ORIGIN?.split(',') || [
+    'http://localhost:3000',
+    'http://localhost:5173',
+    'https://inventory-application-d4u1.onrender.com'
+  ],
   
   // JWT configuration
   jwtSecret: process.env.JWT_SECRET || 'inventory-management-api-jwt-secret-key-2024-production-ready',
