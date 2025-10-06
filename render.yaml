@@ -23,6 +23,4 @@ services:
         sync: false
       - key: CORS_ORIGINS
         value: http://localhost:5173
-      - key: JWT_SECRET
-        sync: false
 

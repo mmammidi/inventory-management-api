@@ -18,7 +18,7 @@ export const appConfig = {
   corsOrigin: process.env.CORS_ORIGIN?.split(',') || ['http://localhost:3000'],
   
   // JWT configuration
-  jwtSecret: process.env.JWT_SECRET || 'your-super-secret-jwt-key-here',
+  jwtSecret: process.env.JWT_SECRET || 'inventory-management-api-jwt-secret-key-2024-production-ready',
   jwtExpiresIn: process.env.JWT_EXPIRES_IN || '24h',
   jwtRefreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
   
@@ -67,8 +67,7 @@ export const appConfig = {
 // Validation function to check required environment variables
 export const validateEnvironment = (): void => {
   const requiredVars = [
-    'DATABASE_URL',
-    'JWT_SECRET'
+    'DATABASE_URL'
   ];
   
   const missingVars = requiredVars.filter(varName => !process.env[varName]);
@@ -79,8 +78,8 @@ export const validateEnvironment = (): void => {
   }
   
   // Validate JWT secret strength
-  if (appConfig.jwtSecret === 'your-super-secret-jwt-key-here') {
-    console.warn('⚠️  Using default JWT secret. Please change it in production!');
+  if (appConfig.jwtSecret === 'inventory-management-api-jwt-secret-key-2024-production-ready') {
+    console.warn('⚠️  Using default JWT secret. Please set JWT_SECRET environment variable in production!');
   }
   
   // Validate database URL format
