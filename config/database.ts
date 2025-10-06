@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client';
+import { PrismaClient, Prisma } from '@prisma/client';
 
 // Database configuration
 export const databaseConfig = {
@@ -12,7 +12,9 @@ export const databaseConfig = {
   queryTimeout: parseInt(process.env.DB_QUERY_TIMEOUT || '30000'),
   
   // Logging configuration
-  logging: process.env.NODE_ENV === 'development' ? ['query', 'info', 'warn', 'error'] : ['error'],
+  logging: (process.env.NODE_ENV === 'development'
+    ? (['query', 'info', 'warn', 'error'] as Prisma.LogLevel[])
+    : (['error'] as Prisma.LogLevel[])),
   
   // Error formatting
   errorFormat: 'pretty' as const,

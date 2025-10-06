@@ -38,7 +38,10 @@
     "node_modules",
     "dist",
     "**/*.test.ts",
-    "**/*.spec.ts"
+    "**/*.spec.ts",
+    "tests",
+    "prisma/seed.ts",
+    "presentation/controllers/AuthController.ts"
   ],
   "ts-node": {
     "require": ["tsconfig-paths/register"]

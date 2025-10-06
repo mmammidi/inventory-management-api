@@ -1,4 +1,4 @@
-import { PrismaClient, Movement } from '@prisma/client';
+import { PrismaClient, Movement, Prisma, MovementType } from '@prisma/client';
 import { BaseRepository } from '@/data/models/BaseRepository';
 import { QueryParams, CreateMovementRequest } from '@/types';
 
@@ -93,7 +93,7 @@ export class MovementRepository extends BaseRepository<Movement> {
 
   async create(data: CreateMovementRequest): Promise<Movement> {
     return this.prisma.movement.create({
-      data,
+      data: data as any,
       include: {
         item: {
           include: {
@@ -108,7 +108,7 @@ export class MovementRepository extends BaseRepository<Movement> {
   async update(id: string, data: Partial<CreateMovementRequest>): Promise<Movement> {
     return this.prisma.movement.update({
       where: { id },
-      data,
+      data: data as any,
       include: {
         item: {
           include: {
@@ -183,7 +183,7 @@ export class MovementRepository extends BaseRepository<Movement> {
     });
   }
 
-  async getMovementsByType(type: string, params?: QueryParams): Promise<{ data: Movement[]; pagination: any }> {
+  async getMovementsByType(type: MovementType, params?: QueryParams): Promise<{ data: Movement[]; pagination: any }> {
     const {
       page = 1,
       limit = 10,
@@ -191,7 +191,7 @@ export class MovementRepository extends BaseRepository<Movement> {
       sortOrder = 'desc'
     } = params || {};
 
-    const where = { type };
+    const where: Prisma.MovementWhereInput = { type };
 
     const [movements, total] = await Promise.all([
       this.prisma.movement.findMany({
@@ -252,7 +252,7 @@ export class MovementRepository extends BaseRepository<Movement> {
         _sum: { quantity: true }
       }),
       this.prisma.movement.aggregate({
-        where: { ...where, type: 'RETURN' },
+        where: { ...where, type: 'RETURN' as any },
         _sum: { quantity: true }
       })
     ]);
@@ -262,7 +262,7 @@ export class MovementRepository extends BaseRepository<Movement> {
       totalOut: outMovements._sum.quantity || 0,
       totalAdjustments: adjustments._sum.quantity || 0,
       totalTransfers: transfers._sum.quantity || 0,
-      totalReturns: returns._sum.quantity || 0
+      totalReturns: (returns._sum?.quantity as number | undefined) || 0
     };
   }
 

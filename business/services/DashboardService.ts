@@ -59,7 +59,7 @@ export class DashboardService {
 
   private async getTotalItemsCount(): Promise<number> {
     return this.db.getPrismaClient().item.count({
-      where: { status: 'ACTIVE' }
+      where: { isActive: true }
     });
   }
 
@@ -69,7 +69,7 @@ export class DashboardService {
 
   private async getTotalSuppliersCount(): Promise<number> {
     return this.db.getPrismaClient().supplier.count({
-      where: { status: 'ACTIVE' }
+      where: { isActive: true }
     });
   }
 
@@ -84,18 +84,9 @@ export class DashboardService {
   }
 
   private async getTotalInventoryValue(): Promise<number> {
-    const result = await this.db.getPrismaClient().item.aggregate({
-      _sum: {
-        quantity: true
-      },
-      where: {
-        status: 'ACTIVE'
-      }
-    });
-
-    // Calculate total value (quantity * cost)
+    // Calculate total value (quantity * cost) for active items
     const items = await this.db.getPrismaClient().item.findMany({
-      where: { status: 'ACTIVE' },
+      where: { isActive: true },
       select: { quantity: true, cost: true }
     });
 
@@ -103,7 +94,16 @@ export class DashboardService {
   }
 
   private async getRecentMovements() {
-    const movements = await this.db.movements.getRecentMovements(10);
+    const movements = await this.db.getPrismaClient().movement.findMany({
+      include: {
+        item: true,
+        user: {
+          select: { id: true, firstName: true, lastName: true, email: true, username: true }
+        }
+      },
+      orderBy: { createdAt: 'desc' },
+      take: 10
+    });
     return movements.map(movement => ({
       id: movement.id,
       item: {
@@ -113,10 +113,16 @@ export class DashboardService {
       },
       type: movement.type,
       quantity: movement.quantity,
-      reason: movement.reason,
-      reference: movement.reference,
-      userId: movement.userId,
-      notes: movement.notes,
+      reason: movement.reason || undefined,
+      reference: movement.reference || undefined,
+      user: {
+        id: movement.user.id,
+        firstName: movement.user.firstName || undefined,
+        lastName: movement.user.lastName || undefined,
+        email: movement.user.email,
+        username: movement.user.username,
+      },
+      notes: movement.notes || undefined,
       createdAt: movement.createdAt
     }));
   }
@@ -129,7 +135,7 @@ export class DashboardService {
   async getInventoryReport(): Promise<ApiResponse<any[]>> {
     try {
       const items = await this.db.getPrismaClient().item.findMany({
-        where: { status: 'ACTIVE' },
+        where: { isActive: true },
         include: {
           category: true,
           supplier: true,
@@ -151,7 +157,7 @@ export class DashboardService {
           currentQuantity: item.quantity,
           minQuantity: item.minQuantity,
           maxQuantity: item.maxQuantity,
-          status: item.status,
+          status: item.isActive ? 'ACTIVE' : 'INACTIVE',
           lastMovement: item.movements[0]?.createdAt,
           totalIn: movementStats.totalIn,
           totalOut: movementStats.totalOut,

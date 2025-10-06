@@ -84,7 +84,7 @@ export const validateEnvironment = (): void => {
   }
   
   // Validate database URL format
-  if (!appConfig.database?.url?.startsWith('postgresql://')) {
+  if (!process.env.DATABASE_URL || !process.env.DATABASE_URL.startsWith('postgresql://')) {
     console.warn('⚠️  Database URL should start with postgresql://');
   }
   

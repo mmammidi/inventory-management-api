@@ -129,8 +129,8 @@ export class ItemService {
       }
 
       // Check if new SKU already exists (if provided)
-      if (data.sku && data.sku !== existingItem.sku) {
-        const skuExists = await this.db.items.findBySku(data.sku);
+      if ((data as any).sku && (data as any).sku !== existingItem.sku) {
+        const skuExists = await this.db.items.findBySku((data as any).sku);
         if (skuExists) {
           return {
             success: false,
@@ -319,7 +319,7 @@ export class ItemService {
       unit: item.unit,
       weight: item.weight ? Number(item.weight) : undefined,
       dimensions: item.dimensions ? JSON.parse(item.dimensions) : undefined,
-      status: item.status,
+      status: item.isActive ? 'ACTIVE' : 'INACTIVE',
       category: {
         id: item.category.id,
         name: item.category.name

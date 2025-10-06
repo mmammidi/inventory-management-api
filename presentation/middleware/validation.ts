@@ -119,11 +119,12 @@ export const validate = (schema: Joi.ObjectSchema, property: 'body' | 'query' | 
         value: detail.context?.value
       }));
 
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         error: 'Validation failed',
         details: errorMessages
       });
+      return;
     }
 
     // Replace the original data with validated and sanitized data

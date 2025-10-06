@@ -122,7 +122,7 @@ export class SupplierRepository extends BaseRepository<Supplier> {
 
   async getAllSuppliers(): Promise<Supplier[]> {
     return this.prisma.supplier.findMany({
-      where: { status: 'ACTIVE' },
+      where: { isActive: true },
       include: {
         _count: {
           select: { items: true }
@@ -134,7 +134,7 @@ export class SupplierRepository extends BaseRepository<Supplier> {
 
   async getActiveSuppliers(): Promise<Supplier[]> {
     return this.prisma.supplier.findMany({
-      where: { status: 'ACTIVE' },
+      where: { isActive: true },
       include: {
         _count: {
           select: { items: true }

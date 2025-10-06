@@ -63,7 +63,13 @@ export class UserRepository extends BaseRepository<User> {
 
   async create(data: CreateUserRequest): Promise<User> {
     return this.prisma.user.create({
-      data,
+      data: {
+        email: data.email,
+        username: data.username,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        role: (data.role && ['ADMIN','MANAGER','USER'].includes(data.role)) ? data.role as any : 'USER',
+      },
       select: {
         id: true,
         email: true,
@@ -81,7 +87,14 @@ export class UserRepository extends BaseRepository<User> {
   async update(id: string, data: UpdateUserRequest): Promise<User> {
     return this.prisma.user.update({
       where: { id },
-      data,
+      data: {
+        email: data.email,
+        username: data.username,
+        firstName: data.firstName,
+        lastName: data.lastName,
+        role: (data.role && ['ADMIN','MANAGER','USER'].includes(data.role)) ? (data.role as any) : undefined,
+        isActive: data.status ? (data.status === 'ACTIVE') : undefined,
+      },
       select: {
         id: true,
         email: true,

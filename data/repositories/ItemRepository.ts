@@ -114,26 +114,21 @@ export class ItemRepository extends BaseRepository<Item> {
   }
 
   async findLowStockItems(): Promise<Item[]> {
-    return this.prisma.item.findMany({
-      where: {
-        quantity: {
-          lte: this.prisma.item.fields.minQuantity
-        },
-        isActive: true
-      },
-      include: {
-        category: true,
-        supplier: true
-      },
+    // Prisma does not support comparing two columns directly in a filter.
+    // Fetch active items and filter low stock in memory.
+    const items = await this.prisma.item.findMany({
+      where: { isActive: true },
+      include: { category: true, supplier: true },
       orderBy: { quantity: 'asc' }
     });
+    return items.filter(i => i.quantity <= i.minQuantity);
   }
 
   async findOutOfStockItems(): Promise<Item[]> {
     return this.prisma.item.findMany({
       where: {
         quantity: 0,
-        status: 'ACTIVE'
+        isActive: true
       },
       include: {
         category: true,
@@ -213,18 +208,9 @@ export class ItemRepository extends BaseRepository<Item> {
   }
 
   async getTotalValue(): Promise<number> {
-    const result = await this.prisma.item.aggregate({
-      _sum: {
-        quantity: true
-      },
-      where: {
-        status: 'ACTIVE'
-      }
-    });
-
-    // This is a simplified calculation - in reality you'd want to sum quantity * cost
+    // Sum quantity * cost for active items
     const items = await this.prisma.item.findMany({
-      where: { status: 'ACTIVE' },
+      where: { isActive: true },
       select: { quantity: true, cost: true }
     });
 

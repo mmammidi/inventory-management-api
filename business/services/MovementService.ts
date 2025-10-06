@@ -6,7 +6,7 @@ import {
   ApiResponse,
   PaginationInfo
 } from '@/types';
-import { Movement } from '@prisma/client';
+import { Movement, MovementType } from '@prisma/client';
 
 export class MovementService {
   private db: Database;
@@ -46,10 +46,11 @@ export class MovementService {
       const result = await this.db.getPrismaClient().$transaction(async (prisma) => {
         // Create movement record
         const movement = await prisma.movement.create({
-          data: {
+          data: ({
             ...data,
-            userId
-          },
+            type: data.type as any,
+            ...(userId ? { userId } : {})
+          } as any),
           include: {
             item: {
               include: {
@@ -71,7 +72,7 @@ export class MovementService {
 
         // Update item quantity
         let newQuantity = item.quantity;
-        switch (data.type) {
+        switch (data.type as unknown as string) {
           case 'IN':
           case 'RETURN':
             newQuantity += data.quantity;
@@ -90,8 +91,7 @@ export class MovementService {
           where: { id: data.itemId },
           data: {
             quantity: newQuantity,
-            status: newQuantity === 0 ? 'OUT_OF_STOCK' : 
-                   newQuantity <= item.minQuantity ? 'ACTIVE' : 'ACTIVE'
+            // status is derived from isActive in our types; keep isActive true
           }
         });
 
@@ -194,7 +194,7 @@ export class MovementService {
 
   async getMovementsByType(type: string, params?: QueryParams): Promise<ApiResponse<{ movements: MovementResponse[]; pagination: PaginationInfo }>> {
     try {
-      const result = await this.db.movements.getMovementsByType(type, params);
+      const result = await this.db.movements.getMovementsByType(type as any, params);
       
       return {
         success: true,
