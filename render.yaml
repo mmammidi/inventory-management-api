@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: inventory-management-api
+    env: node
+    plan: starter
+    region: oregon
+    buildCommand: npm ci && npx prisma generate && npm run build
+    startCommand: npx prisma migrate deploy && npm start
+    healthCheckPath: /api/v1/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        sync: false
+      - key: SHADOW_DATABASE_URL
+        sync: false
+      - key: CORS_ORIGINS
+        value: http://localhost:5173
+      - key: JWT_SECRET
+        sync: false
+
